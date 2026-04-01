@@ -1,0 +1,5 @@
+{
+  "name": "Daily Shorts Prompt Generator",
+  "description": "Generates partitioned prompts for AI video generation tools like Veo, formatted for split-screen YouTube shorts.",
+  "requestFramePermissions": []
+}

@@ -19,13 +19,14 @@ interface VideoMetadata {
 interface PromptPart {
   partNumber: number;
   prompt: string;
-  hindiScript: string;
+  spokenScript: string;
   visualDescription: string;
   characterCount: number;
 }
 
 export default function App() {
   const [topic, setTopic] = useState('');
+  const [language, setLanguage] = useState('Hindi');
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
   const [prompts, setPrompts] = useState<PromptPart[]>([]);
   const [loading, setLoading] = useState(false);
@@ -41,13 +42,23 @@ export default function App() {
     setLoading(true);
     setMetadata(null);
     setPrompts([]);
+
+    let languageInstruction = "";
+    if (language === 'Hindi') {
+      languageInstruction = 'The spoken text MUST be written strictly in the Devanagari script (e.g., "नमस्ते", NOT "namaste" or Hinglish).';
+    } else if (language === 'English') {
+      languageInstruction = 'The spoken text MUST be written strictly in English.';
+    } else if (language === 'Hinglish') {
+      languageInstruction = 'The spoken text MUST be written in Hinglish (Hindi words written using the English alphabet, e.g., "Aap kaise ho").';
+    }
+
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Generate a short YouTube video script about: ${topic || 'A random trending daily topic'}.
 The video will be a 4k split-screen portrait video.
-Bottom half: A boy looking directly at the camera, speaking the script in Hindi. The Hindi text MUST be written strictly in the Devanagari script (e.g., "नमस्ते", NOT "namaste" or Hinglish).
-Top half: Dynamic visuals related to the script. No Hindi text, only English words if any.
+Bottom half: A boy looking directly at the camera, speaking the script in ${language}. ${languageInstruction}
+Top half: Dynamic visuals related to the script. No text in the visuals, only English words if absolutely necessary.
 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting.
 
 Also generate YouTube metadata for this video: a catchy Title, a Description, a list of Tags, and a prompt for generating a Thumbnail image.
@@ -55,7 +66,7 @@ Also generate YouTube metadata for this video: a catchy Title, a Description, a 
 Break the video down into sequential parts.
 For each part, provide a prompt that is STRICTLY UNDER 900 characters.
 Each prompt MUST follow this exact template:
-"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in Hindi: [Insert Hindi Script in Devanagari script here], Top half: [Describe dynamic visuals for this part without any Hindi text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
+"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
 
 Return the response as a JSON object containing 'metadata' and 'parts'.`,
         config: {
@@ -80,11 +91,11 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                   properties: {
                     partNumber: { type: Type.INTEGER },
                     prompt: { type: Type.STRING, description: "The exact prompt text following the template, under 900 chars." },
-                    hindiScript: { type: Type.STRING, description: "The Hindi script spoken in this part, written strictly in Devanagari script." },
+                    spokenScript: { type: Type.STRING, description: `The ${language} script spoken in this part.` },
                     visualDescription: { type: Type.STRING, description: "The English description of the top half visuals." },
                     characterCount: { type: Type.INTEGER, description: "The character count of the prompt string." }
                   },
-                  required: ["partNumber", "prompt", "hindiScript", "visualDescription", "characterCount"]
+                  required: ["partNumber", "prompt", "spokenScript", "visualDescription", "characterCount"]
                 }
               }
             },
@@ -177,7 +188,7 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
     prompts.forEach(p => {
       content += `[Part ${p.partNumber}]\n`;
       content += `Prompt: ${p.prompt}\n\n`;
-      content += `Hindi Script: ${p.hindiScript}\n\n`;
+      content += `Script (${language}): ${p.spokenScript}\n\n`;
       content += `Visuals: ${p.visualDescription}\n\n`;
       content += `------------------------\n\n`;
     });
@@ -204,7 +215,7 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
     prompts.forEach(p => {
       html += `<h3 style="font-family: sans-serif;">Part ${p.partNumber}</h3>`;
       html += `<h4 style="font-family: sans-serif; color: #666;">Prompt</h4><p style="font-family: monospace; background: #f4f4f4; padding: 10px;">${p.prompt}</p>`;
-      html += `<h4 style="font-family: sans-serif; color: #666;">Hindi Script</h4><p style="font-family: sans-serif;">${p.hindiScript}</p>`;
+      html += `<h4 style="font-family: sans-serif; color: #666;">Script (${language})</h4><p style="font-family: sans-serif;">${p.spokenScript}</p>`;
       html += `<h4 style="font-family: sans-serif; color: #666;">Visuals</h4><p style="font-family: sans-serif;">${p.visualDescription}</p>`;
       html += `<hr>`;
     });
@@ -260,18 +271,30 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
           className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 md:p-8 backdrop-blur-sm shadow-2xl print:hidden"
         >
           <div className="flex flex-col md:flex-row gap-4">
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="Enter a topic (e.g., 'Facts about Space') or leave blank for random"
-              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg"
-              onKeyDown={(e) => e.key === 'Enter' && generatePrompts()}
-            />
+            <div className="flex-1 flex flex-col sm:flex-row gap-4">
+              <input
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Enter a topic (e.g., 'Facts about Space') or leave blank"
+                className="flex-[2] bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg"
+                onKeyDown={(e) => e.key === 'Enter' && generatePrompts()}
+              />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg appearance-none cursor-pointer"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+              >
+                <option value="Hindi">Hindi (Devanagari)</option>
+                <option value="English">English</option>
+                <option value="Hinglish">Hinglish</option>
+              </select>
+            </div>
             <button
               onClick={generatePrompts}
               disabled={loading}
-              className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow-lg shadow-emerald-500/20"
+              className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow-lg shadow-emerald-500/20 whitespace-nowrap"
             >
               {loading ? (
                 <RefreshCw className="w-6 h-6 animate-spin" />
@@ -467,9 +490,9 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                       <div className="space-y-3">
                         <h4 className="text-xs uppercase tracking-widest text-zinc-500 font-bold flex items-center gap-2 print:text-gray-600">
                           <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 print:bg-gray-400"></span>
-                          Hindi Script (Bottom Half)
+                          Script ({language}) (Bottom Half)
                         </h4>
-                        <p className="text-sm md:text-base text-zinc-400 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/30 print:bg-white print:border-gray-300 print:text-black">{part.hindiScript}</p>
+                        <p className="text-sm md:text-base text-zinc-400 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/30 print:bg-white print:border-gray-300 print:text-black">{part.spokenScript}</p>
                       </div>
                       <div className="space-y-3">
                         <h4 className="text-xs uppercase tracking-widest text-zinc-500 font-bold flex items-center gap-2 print:text-gray-600">

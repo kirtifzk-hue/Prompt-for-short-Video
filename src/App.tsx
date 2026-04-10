@@ -50,6 +50,8 @@ export default function App() {
       languageInstruction = 'The spoken text MUST be written strictly in English.';
     } else if (language === 'Hinglish') {
       languageInstruction = 'The spoken text MUST be written in Hinglish (Hindi words written using the English alphabet, e.g., "Aap kaise ho").';
+    } else if (language === 'Hindi+English') {
+      languageInstruction = 'The spoken text MUST be a natural conversational mix of Hindi (written in Devanagari script) and English words.';
     }
 
     try {
@@ -289,6 +291,7 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                 <option value="Hindi">Hindi (Devanagari)</option>
                 <option value="English">English</option>
                 <option value="Hinglish">Hinglish</option>
+                <option value="Hindi+English">Hindi + English</option>
               </select>
             </div>
             <button

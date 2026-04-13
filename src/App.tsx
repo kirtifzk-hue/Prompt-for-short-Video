@@ -68,14 +68,13 @@ CRITICAL VEO GUIDELINES: All generated visual descriptions MUST strictly adhere 
 2. Strictly safe for work (no violence, gore, explicit content, or controversial topics).
 3. Do NOT use real named celebrities or public figures in the visual descriptions.
 4. Focus on photorealistic or high-quality cinematic descriptions.
-5. VIRAL TEXT OVERLAY: The bottom half MUST include a prompt for viral-style captions. Extract a 1-3 word punchy English hook from the script to display as text.
 
 Also generate YouTube metadata for this video: a catchy Title, a Description, a list of Tags, and a prompt for generating a Thumbnail image.
 
 Break the video down into sequential parts.
 For each part, provide a prompt that is STRICTLY UNDER 900 characters.
 Each prompt MUST follow this exact template:
-"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here]. He has a subtle purple neon outline. Overlaid on his chest is large, bold, stylized 3D text reading \\"[Insert 1-3 word English hook]\\". The text has a white fill, thick white outline, and a vibrant purple neon drop shadow. Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
+"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
 
 Return the response as a JSON object containing 'metadata' and 'parts'.`,
         config: {

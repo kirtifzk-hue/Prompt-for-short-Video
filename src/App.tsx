@@ -26,7 +26,7 @@ interface PromptPart {
 
 export default function App() {
   const [topic, setTopic] = useState('');
-  const [language, setLanguage] = useState('Hindi');
+  const [language, setLanguage] = useState('Hindi+English');
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
   const [prompts, setPrompts] = useState<PromptPart[]>([]);
   const [loading, setLoading] = useState(false);

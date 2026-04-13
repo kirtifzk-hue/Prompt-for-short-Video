@@ -63,12 +63,18 @@ Bottom half: A boy looking directly at the camera, speaking the script in ${lang
 Top half: Dynamic visuals related to the script. No text in the visuals, only English words if absolutely necessary.
 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting.
 
+CRITICAL VEO GUIDELINES: All generated visual descriptions MUST strictly adhere to Google Veo video generator rules and best practices:
+1. Use highly descriptive, cinematic language specifying camera angles (e.g., close-up, wide shot, panning), lighting (e.g., cinematic, volumetric, neon), and motion.
+2. Strictly safe for work (no violence, gore, explicit content, or controversial topics).
+3. Do NOT use real named celebrities or public figures in the visual descriptions.
+4. Focus on photorealistic or high-quality cinematic descriptions.
+
 Also generate YouTube metadata for this video: a catchy Title, a Description, a list of Tags, and a prompt for generating a Thumbnail image.
 
 Break the video down into sequential parts.
 For each part, provide a prompt that is STRICTLY UNDER 900 characters.
 Each prompt MUST follow this exact template:
-"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
+"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
 
 Return the response as a JSON object containing 'metadata' and 'parts'.`,
         config: {
@@ -491,11 +497,11 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                     
                     <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-zinc-800/50 print:border-gray-300">
                       <div className="space-y-3">
-                        <h4 className="text-xs uppercase tracking-widest text-zinc-500 font-bold flex items-center gap-2 print:text-gray-600">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 print:bg-gray-400"></span>
+                        <h4 className="text-xs uppercase tracking-widest text-amber-500 font-bold flex items-center gap-2 print:text-amber-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 print:bg-amber-600"></span>
                           Script ({language}) (Bottom Half)
                         </h4>
-                        <p className="text-sm md:text-base text-zinc-400 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/30 print:bg-white print:border-gray-300 print:text-black">{part.spokenScript}</p>
+                        <p className="text-sm md:text-base text-amber-50 bg-amber-500/10 p-4 rounded-xl border border-amber-500/20 shadow-inner font-medium leading-relaxed print:bg-amber-50 print:border-amber-200 print:text-amber-900">{part.spokenScript}</p>
                       </div>
                       <div className="space-y-3">
                         <h4 className="text-xs uppercase tracking-widest text-zinc-500 font-bold flex items-center gap-2 print:text-gray-600">

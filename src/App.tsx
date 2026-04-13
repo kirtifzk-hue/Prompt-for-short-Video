@@ -63,11 +63,13 @@ Bottom half: A boy looking directly at the camera, speaking the script in ${lang
 Top half: Dynamic visuals related to the script. No text in the visuals, only English words if absolutely necessary.
 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting.
 
-CRITICAL VEO GUIDELINES: All generated visual descriptions MUST strictly adhere to Google Veo video generator rules and best practices:
-1. Use highly descriptive, cinematic language specifying camera angles (e.g., close-up, wide shot, panning), lighting (e.g., cinematic, volumetric, neon), and motion.
-2. Strictly safe for work (no violence, gore, explicit content, or controversial topics).
-3. Do NOT use real named celebrities or public figures in the visual descriptions.
-4. Focus on photorealistic or high-quality cinematic descriptions.
+CRITICAL VEO GUIDELINES: All generated visual descriptions MUST strictly adhere to Google Veo video generator safety rules and best practices. Veo has strict filters and will FAIL to generate if these are violated:
+1. NO REAL PEOPLE OR CELEBRITIES: Never use names of real public figures, politicians, or celebrities. Use generic descriptions (e.g., "a young man", "a female scientist").
+2. NO COPYRIGHTED INTELLECTUAL PROPERTY: Never use names of copyrighted characters (e.g., Batman, Mickey Mouse), brands, logos, or specific artist styles (e.g., "in the style of Picasso").
+3. STRICTLY SAFE FOR WORK: Absolutely no violence, weapons, blood, gore, injuries, nudity, sexual content, hate speech, or illegal acts.
+4. NO TEXT GENERATION: Veo cannot generate text. Do not ask for words, signs, or labels to appear in the video.
+5. NO CHILDREN IN DANGER: Do not depict minors in hazardous situations.
+6. CINEMATIC DESCRIPTIONS: Use highly descriptive language specifying camera angles (e.g., close-up, wide shot, panning), lighting (e.g., cinematic, volumetric, neon), and motion. Keep it photorealistic.
 
 Also generate YouTube metadata for this video: a catchy Title, a Description, a list of Tags, and a prompt for generating a Thumbnail image.
 

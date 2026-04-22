@@ -63,7 +63,7 @@ Bottom half: A boy looking directly at the camera, speaking the script in ${lang
 Top half: Dynamic visuals related to the script. No text in the visuals, only English words if absolutely necessary.
 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting.
 
-CRITICAL VEO GUIDELINES: All generated visual descriptions MUST strictly adhere to Google Veo video generator safety rules and best practices. Veo has strict filters and will FAIL to generate if these are violated:
+CRITICAL VEO GUIDELINES: All generated visual descriptions FOR THE VIDEO PARTS MUST strictly adhere to Google Veo video generator safety rules and best practices. Veo has strict filters and will FAIL to generate if these are violated:
 1. NO REAL PEOPLE OR CELEBRITIES: Never use names of real public figures, politicians, or celebrities. Use generic descriptions (e.g., "a young man", "a female scientist").
 2. NO COPYRIGHTED INTELLECTUAL PROPERTY: Never use names of copyrighted characters (e.g., Batman, Mickey Mouse), brands, logos, or specific artist styles (e.g., "in the style of Picasso").
 3. STRICTLY SAFE FOR WORK: Absolutely no violence, weapons, blood, gore, injuries, nudity, sexual content, hate speech, or illegal acts.
@@ -71,12 +71,62 @@ CRITICAL VEO GUIDELINES: All generated visual descriptions MUST strictly adhere 
 5. NO CHILDREN IN DANGER: Do not depict minors in hazardous situations.
 6. CINEMATIC DESCRIPTIONS: Use highly descriptive language specifying camera angles (e.g., close-up, wide shot, panning), lighting (e.g., cinematic, volumetric, neon), and motion. Keep it photorealistic.
 
-Also generate YouTube metadata for this video: a catchy Title, a Description, a list of Tags, and a prompt for generating a Thumbnail image.
+Also generate YouTube metadata for this video: a catchy Title, an SEO-optimized PRO Description, a list of Tags, and a PRO-LEVEL prompt for generating a YouTube Shorts cover/thumbnail image.
+
+The SEO Description MUST strictly follow this high-converting, copy-paste ready template:
+"📄 🔥 SEO DESCRIPTION (Copy-Paste Ready)
+
+In this video, we explain the concept of [Topic/Subject] in a very simple and easy way. This concept is part of [Relevant Context, e.g., NCERT Class / Subject / General Science] and helps you understand [Core Benefit / What it explains].
+
+You will learn:
+* [Bullet Point 1: Key concept covered]
+* [Bullet Point 2: Main explanation/reasoning]
+* [Bullet Point 3: Real-life examples or applications]
+
+This short video is perfect for quick revision and concept clarity.
+
+Watch till the end to understand the concept easily.
+
+Like, Share and Subscribe for more educational videos."
+
+The thumbnail prompt MUST strictly follow this exact structural template, adapted for the video's specific subject:
+
+"Create a highly engaging, colorful YouTube Shorts thumbnail for an educational video titled '[Insert Video Title Here]'.
+Include a confident teenage boy teacher (same face as reference image) wearing a dark blue jacket, standing in a modern [Insert relevant environment], slightly pointing toward a visual representation of [Insert core visual subject].
+
+Use bold, large typography:
+* '[Catchy Top Text]' in white
+* '[MAIN KEYWORD]' in bright [Insert contrasting color, e.g., yellow] (very large, eye-catching)
+
+Add small labeled callouts (if relevant):
+* '[Label 1] – [Short description]'
+* '[Label 2] – [Short description]'
+* '[Label 3] – [Short description]'
+
+Include a tagline: '[Subject] Made Simple!' in a glowing strip.
+Use vibrant contrast (dark blue + [Accent Color 1] + [Accent Color 2]), cinematic lighting, soft glow effects, and depth blur background.
+
+Style:
+* Clean, modern, educational
+* Slight 3D text effect with shadows
+* Cartoon + semi-realistic 2D illustration
+* High clarity for mobile viewing (portrait 9:16)
+
+Add visual elements:
+* Doodles/icons related to the topic ([Insert examples])
+* Light bulb icon for 'easy learning'
+* [Insert a specific dynamic visual effect related to topic, e.g., splashes, glowing particles]
+
+Emotion:
+* Friendly, confident teacher
+* Curiosity + simplicity
+
+Make it ultra-clickable, high contrast, and optimized for small screens (mobile-first design)."
 
 Break the video down into sequential parts.
 For each part, provide a prompt that is STRICTLY UNDER 900 characters.
 Each prompt MUST follow this exact template:
-"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
+"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy in a classroom with students\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
 
 Return the response as a JSON object containing 'metadata' and 'parts'.`,
         config: {

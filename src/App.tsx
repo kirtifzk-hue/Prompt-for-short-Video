@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
-import { Copy, RefreshCw, Wand2, Play, CheckCircle2, AlertCircle, Youtube, Hash, Image as ImageIcon, AlignLeft, Type as TypeIcon, Download, Loader2, FileText, File } from 'lucide-react';
+import { Copy, RefreshCw, Wand2, Play, CheckCircle2, AlertCircle, Youtube, Hash, Image as ImageIcon, AlignLeft, Type as TypeIcon, File, Globe } from 'lucide-react';
 import { motion } from 'motion/react';
-import { toPng } from 'html-to-image';
-import { jsPDF } from 'jspdf';
 
 // Initialize Gemini API safely
 const apiKey = process.env.GEMINI_API_KEY;
@@ -31,7 +29,6 @@ export default function App() {
   const [prompts, setPrompts] = useState<PromptPart[]>([]);
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | string | null>(null);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const generatePrompts = async () => {
     if (!ai) {
@@ -184,83 +181,6 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const downloadPDF = async () => {
-    const element = document.getElementById('pdf-content');
-    if (!element) return;
-
-    setIsGeneratingPDF(true);
-    try {
-      // html-to-image uses the browser's native rendering, which supports Tailwind v4's oklch colors
-      const dataUrl = await toPng(element, { 
-        quality: 0.95,
-        backgroundColor: '#09090b', // zinc-950
-        pixelRatio: 2,
-        style: {
-          padding: '20px',
-          margin: '0'
-        }
-      });
-      
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const imgWidth = pdfWidth;
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      pdf.save(`${topic ? topic.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'video'}_prompts.pdf`);
-    } catch (error) {
-      console.error("PDF generation failed:", error);
-      alert("Failed to generate PDF.");
-    } finally {
-      setIsGeneratingPDF(false);
-    }
-  };
-
-  const downloadTXT = () => {
-    if (!metadata || prompts.length === 0) return;
-    let content = `Topic: ${topic || 'Random'}\n\n`;
-    content += `--- YOUTUBE METADATA ---\n`;
-    content += `Title: ${metadata.title}\n\n`;
-    content += `Description:\n${metadata.description}\n\n`;
-    content += `Tags: ${metadata.tags.join(', ')}\n\n`;
-    content += `Thumbnail Prompt:\n${metadata.thumbnailPrompt}\n\n`;
-    content += `--- VIDEO PARTS ---\n\n`;
-    prompts.forEach(p => {
-      content += `[Part ${p.partNumber}]\n`;
-      content += `Prompt: ${p.prompt}\n\n`;
-      content += `Script (${language}): ${p.spokenScript}\n\n`;
-      content += `Visuals: ${p.visualDescription}\n\n`;
-      content += `------------------------\n\n`;
-    });
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${topic ? topic.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'video'}_prompts.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const downloadWord = () => {
     if (!metadata || prompts.length === 0) return;
     const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
@@ -287,6 +207,78 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
     fileDownload.download = `${topic ? topic.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'video'}_prompts.doc`;
     fileDownload.click();
     document.body.removeChild(fileDownload);
+  };
+
+  const downloadHTML = () => {
+    if (!metadata || prompts.length === 0) return;
+    let htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Prompts: ${topic || 'Random'}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
+    h1 { color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+    h2 { color: #d93025; margin-top: 30px; font-size: 1.5rem; }
+    h2.parts { color: #10b981; }
+    h3 { color: #444; margin-top: 20px; margin-bottom: 10px; }
+    h4 { color: #666; margin-bottom: 5px; font-size: 1rem; }
+    p { margin-top: 0; margin-bottom: 15px; }
+    .prompt-box { font-family: monospace; background: #f4f4f4; padding: 15px; border-radius: 5px; white-space: pre-wrap; margin-bottom: 15px; font-size: 0.9rem; }
+    hr { border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0; }
+    .metadata-box { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #eaeaea; }
+    .script-box { background: #fffbeb; padding: 15px; border-radius: 5px; border-left: 4px solid #f59e0b; }
+    .tag { display: inline-block; background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 5px; margin-bottom: 5px;}
+  </style>
+</head>
+<body>
+  <h1>Video Prompts: ${topic || 'Random'}</h1>
+
+  <h2>YouTube Metadata</h2>
+  <div class="metadata-box">
+    <h3>Title</h3>
+    <p><strong>${metadata.title}</strong></p>
+    
+    <h3>Description</h3>
+    <p style="white-space: pre-wrap;">${metadata.description}</p>
+    
+    <h3>Tags</h3>
+    <p>${metadata.tags.map(t => `<span class="tag">${t}</span>`).join('')}</p>
+    
+    <h3>Thumbnail Prompt</h3>
+    <div class="prompt-box">${metadata.thumbnailPrompt}</div>
+  </div>
+
+  <h2 class="parts">Video Parts</h2>
+`;
+
+    prompts.forEach(p => {
+      htmlContent += `
+  <h3>Part ${p.partNumber}</h3>
+  <h4>Prompt (<small>${p.characterCount}/900 chars</small>)</h4>
+  <div class="prompt-box">${p.prompt}</div>
+  
+  <h4>Script (${language}) (Bottom Half)</h4>
+  <div class="script-box">
+    <p>${p.spokenScript}</p>
+  </div>
+  
+  <h4 style="margin-top: 15px;">Visuals (Top Half)</h4>
+  <p>${p.visualDescription}</p>
+  <hr>
+`;
+    });
+
+    htmlContent += `</body></html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${topic ? topic.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'video'}_prompts.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -372,13 +364,6 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
             
             <div className="flex flex-wrap justify-end gap-3 print:hidden">
               <button
-                onClick={downloadTXT}
-                className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold px-6 py-3 rounded-xl transition-all border border-zinc-700 hover:border-zinc-600 shadow-lg"
-              >
-                <FileText className="w-5 h-5" />
-                Save as TXT
-              </button>
-              <button
                 onClick={downloadWord}
                 className="flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 font-semibold px-6 py-3 rounded-xl transition-all border border-blue-500/30 hover:border-blue-500/50 shadow-lg"
               >
@@ -386,12 +371,11 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                 Save as Word
               </button>
               <button
-                onClick={downloadPDF}
-                disabled={isGeneratingPDF}
-                className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold px-6 py-3 rounded-xl transition-all border border-red-500/30 hover:border-red-500/50 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={downloadHTML}
+                className="flex items-center gap-2 bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 font-semibold px-6 py-3 rounded-xl transition-all border border-orange-500/30 hover:border-orange-500/50 shadow-lg"
               >
-                {isGeneratingPDF ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                {isGeneratingPDF ? 'Generating PDF...' : 'Save as PDF'}
+                <Globe className="w-5 h-5" />
+                Save as HTML
               </button>
             </div>
 

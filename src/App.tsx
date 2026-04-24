@@ -25,6 +25,7 @@ interface PromptPart {
 export default function App() {
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState('Hindi+English');
+  const [promptCount, setPromptCount] = useState('Auto');
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
   const [prompts, setPrompts] = useState<PromptPart[]>([]);
   const [loading, setLoading] = useState(false);
@@ -49,6 +50,11 @@ export default function App() {
       languageInstruction = 'The spoken text MUST be written in Hinglish (Hindi words written using the English alphabet, e.g., "Aap kaise ho").';
     } else if (language === 'Hindi+English') {
       languageInstruction = 'The spoken text MUST be a natural conversational mix of Hindi (written in Devanagari script) and English words.';
+    }
+
+    let partsInstruction = "Break the video down into sequential parts.";
+    if (promptCount !== 'Auto') {
+      partsInstruction = `Break the video down into EXACTLY ${promptCount} sequential parts. Do not generate more or fewer parts.`;
     }
 
     try {
@@ -120,7 +126,7 @@ Emotion:
 
 Make it ultra-clickable, high contrast, and optimized for small screens (mobile-first design)."
 
-Break the video down into sequential parts.
+${partsInstruction}
 For each part, provide a prompt that is STRICTLY UNDER 900 characters.
 Each prompt MUST follow this exact template:
 "A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy in a classroom with students\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
@@ -323,26 +329,49 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
           className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 md:p-8 backdrop-blur-sm shadow-2xl print:hidden"
         >
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 flex flex-col lg:flex-row gap-4">
               <input
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Enter a topic (e.g., 'Facts about Space') or leave blank"
-                className="flex-[2] bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg"
+                className="flex-1 lg:flex-[2] bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg"
                 onKeyDown={(e) => e.key === 'Enter' && generatePrompts()}
               />
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg appearance-none cursor-pointer"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
-              >
-                <option value="Hindi">Hindi (Devanagari)</option>
-                <option value="English">English</option>
-                <option value="Hinglish">Hinglish</option>
-                <option value="Hindi+English">Hindi + English</option>
-              </select>
+              <div className="flex flex-col sm:flex-row gap-4 flex-1 lg:flex-[1.5]">
+                <select
+                  title="Select Language"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-[0.95rem] md:text-base appearance-none cursor-pointer"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2rem' }}
+                >
+                  <option value="Hindi">Hindi (Devanagari)</option>
+                  <option value="English">English</option>
+                  <option value="Hinglish">Hinglish</option>
+                  <option value="Hindi+English">Hindi + English</option>
+                </select>
+                <select
+                  title="Number of Video Parts / Prompts"
+                  value={promptCount}
+                  onChange={(e) => setPromptCount(e.target.value)}
+                  className="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-[0.95rem] md:text-base appearance-none cursor-pointer"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2rem' }}
+                >
+                  <option value="Auto">Auto Parts</option>
+                  <option value="2">2 Parts</option>
+                  <option value="3">3 Parts</option>
+                  <option value="4">4 Parts</option>
+                  <option value="5">5 Parts</option>
+                  <option value="6">6 Parts</option>
+                  <option value="7">7 Parts</option>
+                  <option value="8">8 Parts</option>
+                  <option value="9">9 Parts</option>
+                  <option value="10">10 Parts</option>
+                  <option value="12">12 Parts</option>
+                  <option value="15">15 Parts</option>
+                </select>
+              </div>
             </div>
             <button
               onClick={generatePrompts}

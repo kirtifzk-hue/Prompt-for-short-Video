@@ -25,6 +25,7 @@ interface PromptPart {
 export default function App() {
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState('Hindi+English');
+  const [environment, setEnvironment] = useState('in a Classroom with Students');
   const [promptCount, setPromptCount] = useState('Auto');
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
   const [prompts, setPrompts] = useState<PromptPart[]>([]);
@@ -95,7 +96,7 @@ Like, Share and Subscribe for more educational videos."
 The thumbnail prompt MUST strictly follow this exact structural template, adapted for the video's specific subject:
 
 "Create a highly engaging, colorful YouTube Shorts thumbnail for an educational video titled '[Insert Video Title Here]'.
-Include a confident teenage boy teacher (same face as reference image) wearing a dark blue jacket, standing in a modern [Insert relevant environment], slightly pointing toward a visual representation of [Insert core visual subject].
+Include a confident teenage boy teacher (same face as reference image) wearing a dark blue jacket, ${environment}, slightly pointing toward a visual representation of [Insert core visual subject].
 
 Use bold, large typography:
 * '[Catchy Top Text]' in white
@@ -129,7 +130,7 @@ Make it ultra-clickable, high contrast, and optimized for small screens (mobile-
 ${partsInstruction}
 For each part, provide a prompt that is STRICTLY UNDER 900 characters.
 Each prompt MUST follow this exact template:
-"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy in a classroom with students\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
+"A 4k split-screen viral video. Bottom half: [ \\"Attached picture boy ${environment}\\"] looking directly at the camera with high energy, naturally speaking the script in ${language}: [Insert ${language} Script here], Top half: [Describe dynamic visuals for this part using Google Veo best practices, cinematic lighting, camera motion, without any text]. 🎨 Visual Style: High contrast, modern social media look, Neon glow edges, Dynamic lighting"
 
 Return the response as a JSON object containing 'metadata' and 'parts'.`,
         config: {
@@ -328,17 +329,17 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
           transition={{ delay: 0.1 }}
           className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 md:p-8 backdrop-blur-sm shadow-2xl print:hidden"
         >
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 flex flex-col lg:flex-row gap-4">
-              <input
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Enter a topic (e.g., 'Facts about Space') or leave blank"
-                className="flex-1 lg:flex-[2] bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg"
-                onKeyDown={(e) => e.key === 'Enter' && generatePrompts()}
-              />
-              <div className="flex flex-col sm:flex-row gap-4 flex-1 lg:flex-[1.5]">
+          <div className="flex flex-col gap-4">
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="Enter a topic (e.g., 'Facts about Space') or leave blank"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg"
+              onKeyDown={(e) => e.key === 'Enter' && generatePrompts()}
+            />
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 flex-1">
                 <select
                   title="Select Language"
                   value={language}
@@ -350,6 +351,21 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                   <option value="English">English</option>
                   <option value="Hinglish">Hinglish</option>
                   <option value="Hindi+English">Hindi + English</option>
+                </select>
+                <select
+                  title="Select Environment"
+                  value={environment}
+                  onChange={(e) => setEnvironment(e.target.value)}
+                  className="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-[0.95rem] md:text-base appearance-none cursor-pointer"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2rem' }}
+                >
+                  <option value="in a Classroom with Students">Classroom</option>
+                  <option value="in a Science Lab">Science Lab</option>
+                  <option value="in a Kitchen">Kitchen</option>
+                  <option value="in a Library">Library</option>
+                  <option value="in a Studio">Studio</option>
+                  <option value="outside in Nature">Nature</option>
+                  <option value="full screen video in classroom">Full Screen Classroom</option>
                 </select>
                 <select
                   title="Number of Video Parts / Prompts"
@@ -372,19 +388,19 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
                   <option value="15">15 Parts</option>
                 </select>
               </div>
+              <button
+                onClick={generatePrompts}
+                disabled={loading}
+                className="w-full lg:w-auto bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow-lg shadow-emerald-500/20 whitespace-nowrap"
+              >
+                {loading ? (
+                  <RefreshCw className="w-6 h-6 animate-spin" />
+                ) : (
+                  <Wand2 className="w-6 h-6" />
+                )}
+                {loading ? 'Generating...' : 'Generate Script'}
+              </button>
             </div>
-            <button
-              onClick={generatePrompts}
-              disabled={loading}
-              className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow-lg shadow-emerald-500/20 whitespace-nowrap"
-            >
-              {loading ? (
-                <RefreshCw className="w-6 h-6 animate-spin" />
-              ) : (
-                <Wand2 className="w-6 h-6" />
-              )}
-              {loading ? 'Generating...' : 'Generate Script'}
-            </button>
           </div>
         </motion.div>
 

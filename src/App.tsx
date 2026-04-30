@@ -98,8 +98,8 @@ The thumbnail prompt MUST strictly follow this exact structural template, adapte
 "Create a highly engaging, colorful YouTube Shorts thumbnail for an educational video titled '[Insert Video Title Here]'.
 Include a confident teenage boy teacher (same face as reference image) wearing a dark blue jacket, ${environment}, slightly pointing toward a visual representation of [Insert core visual subject].
 
-Use bold, large typography:
-* '[Catchy Top Text]' in white
+Use bold, large typography (positioned in the CENTER of the image, not at the top):
+* '[Catchy Center Text]' in white
 * '[MAIN KEYWORD]' in bright [Insert contrasting color, e.g., yellow] (very large, eye-catching)
 
 Add small labeled callouts (if relevant):
@@ -232,12 +232,35 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
     h3 { color: #444; margin-top: 20px; margin-bottom: 10px; }
     h4 { color: #666; margin-bottom: 5px; font-size: 1rem; }
     p { margin-top: 0; margin-bottom: 15px; }
-    .prompt-box { font-family: monospace; background: #f4f4f4; padding: 15px; border-radius: 5px; white-space: pre-wrap; margin-bottom: 15px; font-size: 0.9rem; }
+    .prompt-box { font-family: monospace; background: #f4f4f4; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-size: 0.9rem; margin-bottom: 0; }
     hr { border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0; }
     .metadata-box { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #eaeaea; }
-    .script-box { background: #fffbeb; padding: 15px; border-radius: 5px; border-left: 4px solid #f59e0b; }
+    .script-box { background: #fffbeb; padding: 15px; border-radius: 5px; border-left: 4px solid #f59e0b; margin-bottom: 0; }
     .tag { display: inline-block; background: #e5e7eb; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin-right: 5px; margin-bottom: 5px;}
+    
+    .copy-container { position: relative; margin-bottom: 15px; }
+    .copy-btn { position: absolute; top: 10px; right: 10px; background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #475569; transition: all 0.2s; display: flex; align-items: center; gap: 4px; z-index: 10; }
+    .copy-btn:hover { background: #cbd5e1; }
+    .copy-btn.copied { background: #10b981; color: white; }
+    .svg-icon { width: 14px; height: 14px; fill: currentColor; }
   </style>
+  <script>
+    function copyText(button, textId) {
+      const textElement = document.getElementById(textId);
+      let textToCopy = textElement.innerText || textElement.textContent;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Copied!';
+        button.classList.add("copied");
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.classList.remove("copied");
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    }
+  </script>
 </head>
 <body>
   <h1>Video Prompts: ${topic || 'Random'}</h1>
@@ -245,34 +268,54 @@ Return the response as a JSON object containing 'metadata' and 'parts'.`,
   <h2>YouTube Metadata</h2>
   <div class="metadata-box">
     <h3>Title</h3>
-    <p><strong>${metadata.title}</strong></p>
+    <div class="copy-container">
+      <button class="copy-btn" onclick="copyText(this, 'meta-title')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+      <div id="meta-title" style="background:#fff; padding:15px; border-radius:5px; border:1px solid #ddd; margin:0;"><strong>${metadata.title}</strong></div>
+    </div>
     
     <h3>Description</h3>
-    <p style="white-space: pre-wrap;">${metadata.description}</p>
+    <div class="copy-container">
+      <button class="copy-btn" onclick="copyText(this, 'meta-desc')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+      <div id="meta-desc" style="white-space: pre-wrap; background:#fff; padding:15px; border-radius:5px; border:1px solid #ddd; font-family: inherit; margin:0;">${metadata.description}</div>
+    </div>
     
     <h3>Tags</h3>
-    <p>${metadata.tags.map(t => `<span class="tag">${t}</span>`).join('')}</p>
+    <div class="copy-container">
+      <button class="copy-btn" onclick="copyText(this, 'meta-tags')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+      <p style="margin-bottom:5px;">${metadata.tags.map(t => `<span class="tag">${t}</span>`).join('')}</p>
+      <div id="meta-tags" style="display:none;">${metadata.tags.join(', ')}</div>
+    </div>
     
     <h3>Thumbnail Prompt</h3>
-    <div class="prompt-box">${metadata.thumbnailPrompt}</div>
+    <div class="copy-container">
+      <button class="copy-btn" onclick="copyText(this, 'meta-thumb')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+      <div class="prompt-box" id="meta-thumb">${metadata.thumbnailPrompt}</div>
+    </div>
   </div>
 
   <h2 class="parts">Video Parts</h2>
 `;
 
-    prompts.forEach(p => {
+    prompts.forEach((p, index) => {
       htmlContent += `
   <h3>Part ${p.partNumber}</h3>
   <h4>Prompt (<small>${p.characterCount}/900 chars</small>)</h4>
-  <div class="prompt-box">${p.prompt}</div>
+  <div class="copy-container">
+    <button class="copy-btn" onclick="copyText(this, 'prompt-${index}')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+    <div class="prompt-box" id="prompt-${index}">${p.prompt}</div>
+  </div>
   
   <h4>Script (${language}) (Bottom Half)</h4>
-  <div class="script-box">
-    <p>${p.spokenScript}</p>
+  <div class="copy-container">
+    <button class="copy-btn" onclick="copyText(this, 'script-${index}')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+    <div class="script-box" id="script-${index}">${p.spokenScript}</div>
   </div>
   
   <h4 style="margin-top: 15px;">Visuals (Top Half)</h4>
-  <p>${p.visualDescription}</p>
+  <div class="copy-container">
+    <button class="copy-btn" onclick="copyText(this, 'visual-${index}')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy</button>
+    <div id="visual-${index}" style="background:#fff; padding:15px; border-radius:5px; border:1px solid #ddd; margin:0;">${p.visualDescription}</div>
+  </div>
   <hr>
 `;
     });

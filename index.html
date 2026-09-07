@@ -21,7 +21,7 @@
 
   <script>
     // अपना Google Sheet CSV लिंक यहाँ पेस्ट करें
-    const SHEET_CSV_URL = "YOUR_GOOGLE_SHEET_CSV_URL_HERE";
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQUD8ap4hxJ-7nnYuPNDuqTB9Mxn2qdvISmKd1mJ4UIkcKWei7BICR5YJe-TLYYpvIEa-vbY0Uo7_Xv/pub?gid=2100274504&single=true&output=csv";
 
     function extractDriveId(url) {
       if (!url) return null;
@@ -112,7 +112,7 @@
       });
     }
 
-    if (SHEET_CSV_URL !== "https://docs.google.com/spreadsheets/d/e/2PACX-1vQUD8ap4hxJ-7nnYuPNDuqTB9Mxn2qdvISmKd1mJ4UIkcKWei7BICR5YJe-TLYYpvIEa-vbY0Uo7_Xv/pub?gid=2100274504&single=true&output=csv") {
+    if (SHEET_CSV_URL !== "YOUR_GOOGLE_SHEET_CSV_URL_HERE") {
       loadPortfolio();
     } else {
       document.getElementById('status').innerText = "कोड में अपना Google Sheet CSV लिंक डालें।";

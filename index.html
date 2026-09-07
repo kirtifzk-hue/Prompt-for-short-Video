@@ -1,13 +1,122 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
 
+  <header class="py-12 px-6 text-center border-b border-gray-800">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Design Portfolio</h1>
+    <p class="mt-3 text-gray-400 max-w-xl mx-auto">Graphic Design, Motion & Creative Visuals</p>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-12">
+    <div id="status" class="text-center text-gray-400 py-12">डेटा लोड हो रहा है...</div>
+    <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+  </main>
+
+  <script>
+    // अपना Google Sheet CSV लिंक यहाँ पेस्ट करें
+    const SHEET_CSV_URL = "YOUR_GOOGLE_SHEET_CSV_URL_HERE";
+
+    function extractDriveId(url) {
+      if (!url) return null;
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || 
+                    url.match(/id=([a-zA-Z0-9_-]+)/) || 
+                    url.match(/open\?id=([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
+    function extractYouTubeId(url) {
+      if (!url) return null;
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      return match ? match[1] : null;
+    }
+
+    async function loadPortfolio() {
+      const status = document.getElementById('status');
+      const gallery = document.getElementById('gallery');
+
+      Papa.parse(SHEET_CSV_URL, {
+        download: true,
+        header: false, // कॉलम नाम की ज़रूरत नहीं, सीधे डेटा पढ़ेगा
+        skipEmptyLines: true,
+        complete: function(results) {
+          const rows = results.data;
+          
+          if (!rows || rows.length <= 1) {
+            status.innerText = "शीट में कोई डेटा नहीं मिला। कृपया Google Form में एंट्री चेक करें।";
+            return;
+          }
+
+          status.style.display = 'none';
+
+          // पहली लाइन (Header) छोड़कर बाकी लाइनें पढ़ें
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            
+            // पूरे रो में से लिंक और टेक्स्ट अपने आप ढूँढें
+            let mediaLink = "";
+            let title = "";
+            let desc = "";
+
+            row.forEach(cell => {
+              const text = String(cell).trim();
+              if (text.startsWith("http://") || text.startsWith("https://")) {
+                mediaLink = text;
+              } else if (!title && text.length > 0 && isNaN(Date.parse(text))) {
+                title = text;
+              } else if (text.length > 0 && isNaN(Date.parse(text))) {
+                desc = text;
+              }
+            });
+
+            if (!title && !mediaLink) continue;
+
+            const card = document.createElement('div');
+            card.className = "bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-lg flex flex-col";
+
+            const ytId = extractYouTubeId(mediaLink);
+            const driveId = extractDriveId(mediaLink);
+
+            let mediaHtml = "";
+            if (ytId) {
+              mediaHtml = `<iframe class="w-full h-52" src="https://www.youtube.com/embed/${ytId}" frameborder="0" allowfullscreen></iframe>`;
+            } else if (driveId) {
+              mediaHtml = `<img src="https://lh3.googleusercontent.com/d/${driveId}" alt="${title}" class="w-full h-52 object-cover bg-gray-800" onerror="this.src='https://drive.google.com/thumbnail?id=${driveId}&sz=w1000'">`;
+            } else if (mediaLink) {
+              mediaHtml = `<img src="${mediaLink}" alt="${title}" class="w-full h-52 object-cover bg-gray-800">`;
+            } else {
+              mediaHtml = `<div class="w-full h-52 bg-gray-800 flex items-center justify-center text-gray-500">No Preview</div>`;
+            }
+
+            card.innerHTML = `
+              ${mediaHtml}
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 class="text-xl font-bold text-white">${title || "Untitled Project"}</h3>
+                  <p class="text-gray-400 text-sm mt-2">${desc}</p>
+                </div>
+              </div>
+            `;
+            gallery.appendChild(card);
+          }
+        },
+        error: function(err) {
+          status.innerText = "डेटा लोड करने में समस्या आई: " + err;
+        }
+      });
+    }
+
+    if (SHEET_CSV_URL !== "https://docs.google.com/spreadsheets/d/e/2PACX-1vQUD8ap4hxJ-7nnYuPNDuqTB9Mxn2qdvISmKd1mJ4UIkcKWei7BICR5YJe-TLYYpvIEa-vbY0Uo7_Xv/pub?gid=2100274504&single=true&output=csv") {
+      loadPortfolio();
+    } else {
+      document.getElementById('status').innerText = "कोड में अपना Google Sheet CSV लिंक डालें।";
+    }
+  </script>
+</body>
+</html>

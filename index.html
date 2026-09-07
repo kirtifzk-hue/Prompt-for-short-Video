@@ -20,8 +20,8 @@
   </main>
 
   <script>
-    // यहाँ अपना Google Sheet CSV लिंक डालें (सुनिश्चित करें कि अंत में &output=csv हो)
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQUD8ap4hxJ-7nnYuPNDuqTB9Mxn2qdvISmKd1mJ4UIkckWei7BICR5YJe-TLYYpvIEa-vbY0Uo7_Xv/pub?output=csv";
+    const RAW_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQUD8ap4hxJ-7nnYuPNDuqTB9Mxn2qdvISmKd1mJ4UIkckWei7BICR5YJe-TLYYpvIEa-vbY0Uo7_Xv/pub?output=csv";
+    const SHEET_CSV_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(RAW_CSV);
 
     function extractDriveId(url) {
       if (!url) return null;
@@ -41,18 +41,15 @@
       const status = document.getElementById('status');
       const gallery = document.getElementById('gallery');
 
-      console.log("Fetching CSV from:", SHEET_CSV_URL);
-
       Papa.parse(SHEET_CSV_URL, {
         download: true,
         header: false,
         skipEmptyLines: true,
         complete: function(results) {
-          console.log("Data received:", results.data);
           const rows = results.data;
           
           if (!rows || rows.length <= 1) {
-            status.innerText = "शीट से कनेक्ट हो गया, लेकिन कोई एंट्री नहीं मिली (Rows <= 1)। कृपया फॉर्म दोबारा सबमिट करें।";
+            status.innerText = "शीट से कनेक्ट हो गया, लेकिन कोई एंट्री नहीं मिली।";
             return;
           }
 
@@ -90,7 +87,7 @@
             } else if (mediaLink) {
               mediaHtml = `<img src="${mediaLink}" alt="${title}" class="w-full h-52 object-cover bg-gray-800">`;
             } else {
-              mediaHtml = `<div class="w-full h-52 bg-gray-800 flex items-center justify-center text-gray-500">No Image Link Found</div>`;
+              mediaHtml = `<div class="w-full h-52 bg-gray-800 flex items-center justify-center text-gray-500">No Image Found</div>`;
             }
 
             card.innerHTML = `
@@ -101,7 +98,7 @@
                   <p class="text-gray-400 text-sm mt-2">${desc}</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-gray-800 text-xs text-gray-500 truncate">
-                  ${mediaLink ? `<a href="${mediaLink}" target="_blank" class="text-blue-400 hover:underline">ओरिजिनल लिंक खोलें</a>` : 'कोई लिंक नहीं'}
+                  ${mediaLink ? `<a href="${mediaLink}" target="_blank" class="text-blue-400 hover:underline">ओरिजिनल लिंक खोलें</a>` : ''}
                 </div>
               </div>
             `;
@@ -109,13 +106,11 @@
           }
         },
         error: function(err) {
-          console.error("PapaParse Error:", err);
-          status.innerText = "डेटा लोड एरर: " + JSON.stringify(err);
+          status.innerText = "डेटा लोड एरर: Google Sheet लिंक ब्लॉक हो रहा है।";
         }
       });
     }
 
-    // सीधे फंक्शन को कॉल करें
     loadPortfolio();
   </script>
 </body>
